@@ -8,6 +8,8 @@ ftp_server: ftp_server.c
 
 clean: 
 	rm -f ftp_client ftp_server
+
+fresh: clean all
  
 run: 
 	./ftp_server & ./ftp_client

@@ -16,4 +16,5 @@
 ## Building/Running 
 * to build run the command ``make`` or ``make all``.
 * to clean the project (remove built files) run ``make clean``.
+* to clean the project and build it run ``make fresh``.
 * to run the project execute ``make run``. This will start the server then the client. Optionally you can execute them separately without the use of make.
