@@ -1,6 +1,8 @@
 # FTP Client and Sever
 ## Description 
-	A simple example of an FTP like client and server for CSC565. The client must be able to upload/download files, view the contents of a remote directory, and gracefully quit the application. The server must support 5 simultaneous connections and will run on port 12000. 
+	A simple example of an FTP like client and server for CSC565. The client must be able to upload/download files, 
+	view the contents of a remote directory, and gracefully quit the application. The server must support 5 simultaneous 
+	connections and will run on port 12000. 
 
 ## Explanation
 
