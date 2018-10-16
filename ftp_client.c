@@ -10,7 +10,23 @@
 
 char *address = "127.0.0.1";
 int port = 12000;
+int socket_descriptor;
+struct sockaddr_in address_struct; 
 
+void socketSetupAndConnect() {
+    socket_descriptor = socket(PF_INET, SOCK_STREAM, 0); /* create socket */
+    memset(&address_struct, 0, sizeof(address_struct));    /* create & zero struct */
+
+    address_struct.sin_family = AF_INET;    /* select internet protocol */
+    address_struct.sin_port = htons(port);         /* set the port # */
+    address_struct.sin_addr.s_addr = inet_addr(address); /* set the addr */
+    int retcode = connect(socket_descriptor, &address_struct, sizeof(address_struct));
+    if(retcode < 0){
+        printf("Failed to connect with the server\n"); 
+        exit(2);
+    }
+    printf("Connection to the server was successful\n"); 
+}
 
 int main(int argc, char **argv){
     //if a valid ip is given set the ip else default to 127.0.0.1
@@ -22,28 +38,26 @@ int main(int argc, char **argv){
         port = atoi(argv[2]);
     }
 
-    int sd;
-    sd = socket(PF_INET, SOCK_STREAM, 0); /* create socket */
+    socketSetupAndConnect();
 
-    struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));    /* create & zero struct */
-    addr.sin_family = AF_INET;    /* select internet protocol */
-    addr.sin_port = htons(port);         /* set the port # */
-    addr.sin_addr.s_addr = inet_addr(address); /* set the addr */
-    
-    int retcode = connect(sd, &addr, sizeof(addr));         /* connect! */
-    if(retcode < 0){
-         printf("Failed to connect with the host\n"); 
-         exit(2);
-    }  
-    char s[200];
-    FILE *fp;
-    fp = fdopen(sd, "r+");         /* convert into stream */
-    fprintf(fp, "GET / HTTP/1.0\n\n");      /* send request */
-    fflush(fp);               /* ensure it got out */
-    while ( fgets(s, sizeof(s), fp) != 0 ){  /* while not EOF ...*/
-        fputs(s, stdout);           /*... print the data */
+    char buffer[200];
+    FILE *file_ptr;
+    file_ptr = fdopen(socket_descriptor, "r+");         /* convert into stream */
+    // fprintf(file_ptr, "GET / HTTP/1.0\n\n");      /* send request */
+    // fflush(file_ptr);               /* ensure it got out */
+    // while (fgets(buffer, sizeof(buffer), file_ptr) != 0 ){  /* while not EOF ...*/
+    //     fputs(buffer, stdout);           /*... print the data */
+    // }
+    for(;;){
+        char input[20]; 
+        scanf("%s",input);
+        fprintf(file_ptr, "%s\n", input);      /* send request */
+        fflush(file_ptr);
+        if(strcmp(input,"quit")==0){
+            break;
+        }
     }
-    fclose(fp);
+
+    fclose(file_ptr);
     return 0;
 }
