@@ -1,16 +1,17 @@
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdlib.h>
-#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
-const int SERVER_PORT = 8888;
 const int Q_LEN = 5;  // number of waiting clients
  
-int  main(void) {   
+int main(int argc, char** argv) {  
+    int port = atoi(argv[1]);
+ 
     struct sockaddr_in serv_sin;   
     struct sockaddr_in cli_sin;   
     char buffer[500];  
@@ -19,11 +20,11 @@ int  main(void) {
     unsigned int addrLen;   // or socklen_t addrLen
     int length;
 
-    // Setup address structure   
+    // Setup address structure   
     bzero((char *) &serv_sin, sizeof(serv_sin));
     serv_sin.sin_family = AF_INET;
     serv_sin.sin_addr.s_addr = INADDR_ANY;   
-    serv_sin.sin_port = htons(SERVER_PORT);   // Setup listening socket   
+    serv_sin.sin_port = htons(port);   // Setup listening socket   
     sockListen = socket(PF_INET, SOCK_STREAM, 0);
 
     if (sockListen < 0) {
