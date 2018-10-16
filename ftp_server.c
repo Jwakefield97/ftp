@@ -8,9 +8,14 @@
 #include <unistd.h>
 
 const int Q_LEN = 5;  // number of waiting clients
- 
-int main(int argc, char** argv) {  
-    int port = atoi(argv[1]);
+int port = 12000;
+
+int main(int argc, char** argv) {
+    //if a valid port number is given set it else default to 12000
+    if(argv[1] != NULL && sizeof(argv[1]) > 0){
+        port = atoi(argv[2]);
+    }  
+    
  
     struct sockaddr_in serv_sin;   
     struct sockaddr_in cli_sin;   
@@ -55,7 +60,7 @@ int main(int argc, char** argv) {
                 int count;
                 for(count = 0; count < length; ++ count) {
                     printf("%c", buffer[count]); // Display client's msg               
-                    printf("\n");
+                    
                 }
                 write(sockAccept, buffer, length);  // Echo msg            
                 if(buffer[0]=='Q') {    // Quit communication with client 
