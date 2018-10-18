@@ -40,11 +40,14 @@ void freeFileArray(char **array){
     }
 }
 
+//TODO: add error handling 
 //send a file by the number they chose over to the server
 int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
     char *files[getNumFiles()]; 
     getDirectoryFiles(files);
     while(1){
+        //TODO: open file from file system and keep sending until all the bytes in the file are sent. make a function for it 
+        //see -> https://www.daniweb.com/programming/software-development/threads/66574/read-file-with-unknown-buffer-length
         send(socketDescriptor, "u",bufferSize, 0); //send ls command
         send(socketDescriptor, files[fileChoosen], bufferSize,0);
         send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
@@ -52,4 +55,10 @@ int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
     }
     freeFileArray(files);
     return 0;
+}
+
+//TODO: add error handling
+int getFileFromServer(int socketDescriptor, int fileChoosen, int bufferSize){
+    printf("getting file {%d} from server",fileChoosen);
+    return 0; 
 }

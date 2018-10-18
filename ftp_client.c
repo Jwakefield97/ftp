@@ -32,7 +32,7 @@ void socketSetupAndConnect() {
 }
 
 //extract the file number from input buffer
-//truncates after 6 int places
+//TODO: fix truncation after 6 int places
 int getInputNumber(char *input){
     char number[50];
     int numberIndex = 0;
@@ -91,8 +91,7 @@ int main(int argc, char **argv){
             sendFileOverSocket(socketDescriptor,getInputNumber(input),sizeof(buffer));
             printf("uploading\n");
         }else if(input[0] == 'd'){
-            printf("input num: %d\n",getInputNumber(input));
-            printf("downloading\n");
+            getFileFromServer(socketDescriptor,getInputNumber(input),sizeof(buffer));
         }
 
     }
