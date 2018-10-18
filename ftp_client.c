@@ -31,6 +31,19 @@ void socketSetupAndConnect() {
     printf("Connection to the server was successful\n"); 
 }
 
+//extract the file number from input buffer
+int getInputNumber(char *input){
+    char number[50];
+    int numberIndex = 0;
+    for(int i = 0; i < sizeof(input)/sizeof(input[0]); i++){
+        if(input[i] != 'u' && input[i] != 'd' && input[i] != '\0'){
+            number[numberIndex] = input[i];
+            numberIndex++;
+        }
+    }
+    return atoi(number);
+}
+
 int main(int argc, char **argv){
     
     //if a valid ip is given set the ip else default to 127.0.0.1
@@ -46,8 +59,12 @@ int main(int argc, char **argv){
     char buffer[200];
     for(;;){
         printf("ftp> ");
-        char input[20]; 
+        char input[50]; 
         scanf(" %[^\n]",input);
+
+        if(strcmp(input,"exit")==0){
+            break;
+        }
 
         if(strcmp(input,"ls client")==0){
             char *files[getNumFiles()]; 
@@ -57,7 +74,7 @@ int main(int argc, char **argv){
             }
             freeFileArray(files);
 
-        } else if(strcmp(input,"ls server")==0){
+        }else if(strcmp(input,"ls server")==0){
             send(socket_descriptor, "ls", 2, 0); //send ls command
             int count = 0;
             //collect all of the messages from the server
@@ -69,11 +86,14 @@ int main(int argc, char **argv){
                 printf("\t%d. %s\n",count,buffer);
                 count++;
             }
+        }else if(input[0] == 'u') {
+            printf("input num: %d\n",getInputNumber(input));
+            printf("uploading\n");
+        }else if(input[0] == 'd'){
+            printf("input num: %d\n",getInputNumber(input));
+            printf("downloading\n");
         }
 
-        if(strcmp(input,"quit")==0){
-            break;
-        }
     }
     close(socket_descriptor);
     return 0;
