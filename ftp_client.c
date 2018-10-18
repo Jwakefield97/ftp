@@ -12,18 +12,18 @@
 
 char *address = "127.0.0.1";
 int port = 12000;
-int socket_descriptor;
-struct sockaddr_in address_struct; 
+int socketDescriptor;
+struct sockaddr_in addressStruct; 
 
 
 void socketSetupAndConnect() {
-    socket_descriptor = socket(PF_INET, SOCK_STREAM, 0); /* create socket */
-    memset(&address_struct, 0, sizeof(address_struct));    /* create & zero struct */
+    socketDescriptor = socket(PF_INET, SOCK_STREAM, 0); /* create socket */
+    memset(&addressStruct, 0, sizeof(addressStruct));    /* create & zero struct */
 
-    address_struct.sin_family = AF_INET;    /* select internet protocol */
-    address_struct.sin_port = htons(port);         /* set the port # */
-    address_struct.sin_addr.s_addr = inet_addr(address); /* set the addr */
-    int retcode = connect(socket_descriptor, &address_struct, sizeof(address_struct));
+    addressStruct.sin_family = AF_INET;    /* select internet protocol */
+    addressStruct.sin_port = htons(port);         /* set the port # */
+    addressStruct.sin_addr.s_addr = inet_addr(address); /* set the addr */
+    int retcode = connect(socketDescriptor, (struct sockaddr*) &addressStruct, sizeof(addressStruct));
     if(retcode < 0){
         printf("Failed to connect with the server\n"); 
         exit(2);
@@ -32,6 +32,7 @@ void socketSetupAndConnect() {
 }
 
 //extract the file number from input buffer
+//truncates after 6 int places
 int getInputNumber(char *input){
     char number[50];
     int numberIndex = 0;
@@ -75,11 +76,11 @@ int main(int argc, char **argv){
             freeFileArray(files);
 
         }else if(strcmp(input,"ls server")==0){
-            send(socket_descriptor, "ls", 2, 0); //send ls command
+            send(socketDescriptor, "ls", 2, 0); //send ls command
             int count = 0;
             //collect all of the messages from the server
             while(1){
-                read(socket_descriptor,buffer,sizeof(buffer));
+                read(socketDescriptor,buffer,sizeof(buffer));
                 if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
                     break;
                 }
@@ -87,7 +88,7 @@ int main(int argc, char **argv){
                 count++;
             }
         }else if(input[0] == 'u') {
-            printf("input num: %d\n",getInputNumber(input));
+            sendFileOverSocket(socketDescriptor,getInputNumber(input),sizeof(buffer));
             printf("uploading\n");
         }else if(input[0] == 'd'){
             printf("input num: %d\n",getInputNumber(input));
@@ -95,7 +96,7 @@ int main(int argc, char **argv){
         }
 
     }
-    close(socket_descriptor);
+    close(socketDescriptor);
     return 0;
     
 }

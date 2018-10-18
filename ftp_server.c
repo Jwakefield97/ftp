@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     }
     addrLen = sizeof(cli_sin);
     while (1){      
-        sockAccept = accept(sockListen,(struct sockaddr *) &cli_sin, &addrLen);
+        sockAccept = accept(sockListen,(struct sockaddr *) &cli_sin, (socklen_t *) &addrLen);
         if (sockAccept < 0){
             printf("Failed to accept connection\n");
             exit(1);
@@ -70,7 +70,16 @@ int main(int argc, char** argv) {
                         }
                     }
                     freeFileArray(files);
-                }  
+                } else if (buffer[0] == 'u'){ //a file is being uploaded
+
+                    read(sockAccept,buffer,sizeof(buffer));
+                    if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
+                        break;
+                    }else{
+
+                        printf("%s\n",buffer);
+                    }
+                }
             } else {
                 break;
             }

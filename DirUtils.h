@@ -1,6 +1,7 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/socket.h>
 
 //get num files in a dir 
 int getNumFiles(){
@@ -37,4 +38,18 @@ void freeFileArray(char **array){
     for(int i = 0; i < sizeof(array)/sizeof(char*); i++){
         free(array[i]);
     }
+}
+
+//send a file by the number they chose over to the server
+int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
+    char *files[getNumFiles()]; 
+    getDirectoryFiles(files);
+    while(1){
+        send(socketDescriptor, "u",bufferSize, 0); //send ls command
+        send(socketDescriptor, files[fileChoosen], bufferSize,0);
+        send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
+        break;
+    }
+    freeFileArray(files);
+    return 0;
 }
