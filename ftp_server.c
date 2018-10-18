@@ -61,12 +61,13 @@ int main(int argc, char** argv) {
                 if(buffer[0] == 'l' && buffer[1] == 's'){
                     char *files[getNumFiles()]; 
                     getDirectoryFiles(files);
-                    for(int i = 0; i < sizeof(files)/sizeof(char*); i++){
-                        printf("\t%d. %s\n",i,files[i]);
-                        //not working
-                        strncpy(buffer,files[i],strlen(files[i]));
-                        //not working
-                        write(sockAccept, buffer, length);  // Echo msg  
+                    for(int i = 0; i < sizeof(files)/sizeof(files[0]); i++){
+                        write(sockAccept, files[i], sizeof(buffer));  // send the file name to the client
+
+                        //if this is the last message being sent send only \0
+                        if(i == (sizeof(files)/sizeof(files[0])-1)){
+                            write(sockAccept, "\0", sizeof(buffer));  // Echo msg  
+                        }
                     }
                     freeFileArray(files);
                 }  

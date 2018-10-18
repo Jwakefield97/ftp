@@ -32,12 +32,6 @@ void socketSetupAndConnect() {
 }
 
 int main(int argc, char **argv){
-    // char *files[getNumFiles()]; 
-    // getDirectoryFiles(files);
-    // for(int i = 0; i < sizeof(files)/sizeof(char*); i++){
-    //     printf("%s",files[i]);
-    // }
-    
     
     //if a valid ip is given set the ip else default to 127.0.0.1
     if(argv[1] != NULL && sizeof(argv[1]) >= 7 ){
@@ -49,15 +43,7 @@ int main(int argc, char **argv){
     }
 
     socketSetupAndConnect();
-
     char buffer[200];
-    FILE *file_ptr;
-    file_ptr = fdopen(socket_descriptor, "r+");         /* convert into stream */
-    // fprintf(file_ptr, "GET / HTTP/1.0\n\n");      /* send request */
-    // fflush(file_ptr);               /* ensure it got out */
-    // while (fgets(buffer, sizeof(buffer), file_ptr) != 0 ){  /* while not EOF ...*/
-    //     fputs(buffer, stdout);           /*... print the data */
-    // }
     for(;;){
         printf("ftp> ");
         char input[20]; 
@@ -71,21 +57,25 @@ int main(int argc, char **argv){
             }
             freeFileArray(files);
 
-        }else if(strcmp(input,"ls server")==0){
-            fprintf(file_ptr, "%s\n", "ls");      /* send ls command to server */
-            fflush(file_ptr);
-            while (fgets(buffer, sizeof(buffer), file_ptr) != 0 ){  /* while not EOF ...*/
-                fputs(buffer, stdout);           /*... print the data */
+        } else if(strcmp(input,"ls server")==0){
+            send(socket_descriptor, "ls", 2, 0); //send ls command
+            int count = 0;
+            //collect all of the messages from the server
+            while(1){
+                int bytesread=read(socket_descriptor,buffer,sizeof(buffer));
+                if(buffer[0] == '\0'){  //if the first char is \0 then the server has stopped sending info
+                    break;
+                }
+                printf("\t%d. %s\n",count,buffer);
+                count++;
             }
         }
-        printf("%c",buffer[0]);
 
         if(strcmp(input,"quit")==0){
             break;
         }
     }
-
-    fclose(file_ptr);
+    close(socket_descriptor);
     return 0;
     
 }
