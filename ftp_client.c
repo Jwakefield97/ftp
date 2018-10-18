@@ -72,9 +72,13 @@ int main(int argc, char **argv){
             freeFileArray(files);
 
         }else if(strcmp(input,"ls server")==0){
-            fprintf(file_ptr, "%s\n", input);      /* send request */
+            fprintf(file_ptr, "%s\n", "ls");      /* send ls command to server */
             fflush(file_ptr);
+            while (fgets(buffer, sizeof(buffer), file_ptr) != 0 ){  /* while not EOF ...*/
+                fputs(buffer, stdout);           /*... print the data */
+            }
         }
+        printf("%c",buffer[0]);
 
         if(strcmp(input,"quit")==0){
             break;

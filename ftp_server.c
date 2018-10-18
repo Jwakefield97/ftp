@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
  
     struct sockaddr_in serv_sin;   
     struct sockaddr_in cli_sin;   
-    char buffer[500];  
+    char buffer[200];  
     int sockListen;   
     int sockAccept;   
     unsigned int addrLen;   // or socklen_t addrLen
@@ -56,17 +56,20 @@ int main(int argc, char** argv) {
             exit(1);
         }
         while (sockAccept > 0) {
-            length = read (sockAccept, buffer, sizeof(buffer));
+            length = read(sockAccept, buffer, sizeof(buffer));
             if(length > 0){
-                int count;
-                for(count = 0; count < length; ++ count) {
-                    printf("%c", buffer[count]); // Display client's msg               
-                    
-                }
-                write(sockAccept, buffer, length);  // Echo msg            
-                if(buffer[0]=='Q') {    // Quit communication with client 
-		            break;
-                }
+                if(buffer[0] == 'l' && buffer[1] == 's'){
+                    char *files[getNumFiles()]; 
+                    getDirectoryFiles(files);
+                    for(int i = 0; i < sizeof(files)/sizeof(char*); i++){
+                        printf("\t%d. %s\n",i,files[i]);
+                        //not working
+                        strncpy(buffer,files[i],strlen(files[i]));
+                        //not working
+                        write(sockAccept, buffer, length);  // Echo msg  
+                    }
+                    freeFileArray(files);
+                }  
             } else {
                 break;
             }
