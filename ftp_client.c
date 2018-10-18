@@ -7,11 +7,14 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "DirUtils.h"
+
 
 char *address = "127.0.0.1";
 int port = 12000;
 int socket_descriptor;
 struct sockaddr_in address_struct; 
+
 
 void socketSetupAndConnect() {
     socket_descriptor = socket(PF_INET, SOCK_STREAM, 0); /* create socket */
@@ -29,6 +32,13 @@ void socketSetupAndConnect() {
 }
 
 int main(int argc, char **argv){
+    // char *files[getNumFiles()]; 
+    // getDirectoryFiles(files);
+    // for(int i = 0; i < sizeof(files)/sizeof(char*); i++){
+    //     printf("%s",files[i]);
+    // }
+    
+    
     //if a valid ip is given set the ip else default to 127.0.0.1
     if(argv[1] != NULL && sizeof(argv[1]) >= 7 ){
         address = argv[1];
@@ -49,6 +59,7 @@ int main(int argc, char **argv){
     //     fputs(buffer, stdout);           /*... print the data */
     // }
     for(;;){
+        printf("ftp> ");
         char input[20]; 
         scanf("%s",input);
         fprintf(file_ptr, "%s\n", input);      /* send request */
@@ -60,4 +71,5 @@ int main(int argc, char **argv){
 
     fclose(file_ptr);
     return 0;
+    
 }
