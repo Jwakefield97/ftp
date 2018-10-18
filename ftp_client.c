@@ -62,8 +62,8 @@ int main(int argc, char **argv){
             int count = 0;
             //collect all of the messages from the server
             while(1){
-                int bytesread=read(socket_descriptor,buffer,sizeof(buffer));
-                if(buffer[0] == '\0'){  //if the first char is \0 then the server has stopped sending info
+                read(socket_descriptor,buffer,sizeof(buffer));
+                if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
                     break;
                 }
                 printf("\t%d. %s\n",count,buffer);

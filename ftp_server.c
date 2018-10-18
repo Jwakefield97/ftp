@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 
                         //if this is the last message being sent send only \0
                         if(i == (sizeof(files)/sizeof(files[0])-1)){
-                            write(sockAccept, "\0", sizeof(buffer));  // Echo msg  
+                            write(sockAccept, "\0\0\0\0\0", sizeof(buffer));  // Echo msg  
                         }
                     }
                     freeFileArray(files);
