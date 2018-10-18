@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//get num files in a dir 
 int getNumFiles(){
     struct dirent *dp;
     const char *path="."; // Directory target
@@ -15,6 +16,7 @@ int getNumFiles(){
     return fileCount;
 }
 
+//get file names from dir
 void getDirectoryFiles(char **fileList){
     struct dirent *dp;
     const char *path="."; // Directory target
@@ -28,5 +30,11 @@ void getDirectoryFiles(char **fileList){
             count++;
         }
     }
+}
 
+//free the array used to hold file names
+void freeFileArray(char **array){
+    for(int i = 0; i < sizeof(array)/sizeof(char*); i++){
+        free(array[i]);
+    }
 }

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "DirUtils.h"
 
 const int Q_LEN = 5;  // number of waiting clients
 int port = 12000;

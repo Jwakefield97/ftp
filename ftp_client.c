@@ -61,9 +61,21 @@ int main(int argc, char **argv){
     for(;;){
         printf("ftp> ");
         char input[20]; 
-        scanf("%s",input);
-        fprintf(file_ptr, "%s\n", input);      /* send request */
-        fflush(file_ptr);
+        scanf(" %[^\n]",input);
+
+        if(strcmp(input,"ls client")==0){
+            char *files[getNumFiles()]; 
+            getDirectoryFiles(files);
+            for(int i = 0; i < sizeof(files)/sizeof(char*); i++){
+                printf("\t%d. %s\n",i,files[i]);
+            }
+            freeFileArray(files);
+
+        }else if(strcmp(input,"ls server")==0){
+            fprintf(file_ptr, "%s\n", input);      /* send request */
+            fflush(file_ptr);
+        }
+
         if(strcmp(input,"quit")==0){
             break;
         }
