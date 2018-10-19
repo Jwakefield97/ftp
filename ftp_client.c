@@ -46,10 +46,12 @@ int getInputNumber(char *input){
 }
 
 int main(int argc, char **argv){
-    // int numLines = getNumberOfLinesinFile("ftp_client.c");
-    // char **fileData = getFileData("ftp_client.c");
-    // for(int i =0; i < numLines; i++){
-    //     printf("%d: %s\n",i,fileData[i]);
+    // struct file_info file;
+    // file = getFileData("test.txt");
+    // printf("num chars %lld\n",file.numChars);
+
+    // for(int i =0; i < file.numLines; i++){
+    //     printf("%d: %s\n",i,file.data[i]);
     // }
     
     //if a valid ip is given set the ip else default to 127.0.0.1
@@ -62,17 +64,22 @@ int main(int argc, char **argv){
     }
 
     socketSetupAndConnect();
-    char buffer[200];
+    char buffer[1000];
     for(;;){
         printf("ftp> ");
         char input[50]; 
-        scanf(" %[^\n]",input);
+
+        //insert \0 to prevent premature exit of loop
+        //look up how to prevent fputs from inserting a newline
+        fputs("\0",stdin);
+        
+        fgets(input,sizeof(input),stdin);
 
         if(strcmp(input,"exit")==0){
             break;
         }
 
-        if(strcmp(input,"ls client")==0){
+        if(strcmp(input,"ls client\n")==0){
             char *files[getNumFiles()]; 
             getDirectoryFiles(files);
             for(int i = 0; i < sizeof(files)/sizeof(char*); i++){
@@ -80,7 +87,7 @@ int main(int argc, char **argv){
             }
             freeFileArray(files);
 
-        }else if(strcmp(input,"ls server")==0){
+        }else if(strcmp(input,"ls server\n")==0){
             send(socketDescriptor, "ls", 2, 0); //send ls command
             int count = 0;
             //collect all of the messages from the server

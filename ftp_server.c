@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
  
     struct sockaddr_in serv_sin;   
     struct sockaddr_in cli_sin;   
-    char buffer[200];  
+    char buffer[1000];  
     int sockListen;   
     int sockAccept;   
     unsigned int addrLen;   // or socklen_t addrLen
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     if (bind(sockListen, (struct sockaddr *) &serv_sin, 
             sizeof(serv_sin)) < 0) {
         printf("Failed to bind listening socket to address \n");
-        exit(1);   
+        exit(1);
     }
 
     if (listen(sockListen, Q_LEN) < 0){
@@ -78,7 +78,6 @@ int main(int argc, char** argv) {
                         if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
                             break;
                         }else{
-
                             printf("%s\n",buffer);
                         }
                     }

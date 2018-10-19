@@ -3,6 +3,14 @@
 #include <stdio.h>
 #include <sys/socket.h>
 
+//struct used to store info about a given file
+struct file_info {
+    char **data;
+    char *fileName;
+    long long  int numLines; 
+    long long  int numChars; 
+};
+
 //get num files in a dir 
 int getNumFiles(){
     struct dirent *dp;
@@ -40,37 +48,33 @@ void freeFileArray(char **array){
     }
 }
 
-//get the number of lines in a file
-int getNumberOfLinesinFile(char *filename) {
-    FILE * infile = fopen(filename,"r");
-    int counter = 0;
-    char line[501];
-    while (fgets(line,501,infile)) {
-        counter++;
-    }
-    return counter;
-}
 
-//get data lines from file and store in a char **
-char** getFileData(char *filename){
+//get data lines from file and store in a char
+struct file_info getFileData(char *filename){
     FILE * infile;
     char line[501];
     int llen;
-    int counter = 0;
-    char ** info = NULL;
     infile = fopen(filename,"r");
+
+    struct file_info file; 
+    file.fileName = filename; 
+    file.data = NULL;
+    file.numLines = 0; 
+    file.numChars = 0;
 
     while (fgets(line,501,infile)) {
         // Allocate memory for pointer to line just added
-        info = realloc(info,(counter+1) * sizeof(char *));
+        file.data = realloc(file.data,(file.numLines+1) * sizeof(char *));
         // And allocate memory for that line itself!
         llen = strlen(line);
-        info[counter] = calloc(sizeof(char),llen+1);
+        file.numChars += strlen(line);
+        file.data[file.numLines] = calloc(sizeof(char),llen+1);
         // Copy the line just read into that memory
-        strcpy(info[counter],line);
-        counter++;
+        strcpy(file.data[file.numLines],line);
+        file.numLines++;
     }
-    return info;
+    fclose(infile);
+    return file;
 }
 
 //TODO: add error handling 
@@ -78,12 +82,18 @@ char** getFileData(char *filename){
 int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
     char *files[getNumFiles()]; 
     getDirectoryFiles(files);
+    send(socketDescriptor, "u",bufferSize, 0); //send ls command
     while(1){
         //TODO: open file from file system and keep sending until all the bytes in the file are sent. make a function for it 
-        //see -> https://www.daniweb.com/programming/software-development/threads/66574/read-file-with-unknown-buffer-length
-        send(socketDescriptor, "u",bufferSize, 0); //send ls command
-        send(socketDescriptor, files[fileChoosen], bufferSize,0);
-        send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
+        struct file_info file = getFileData(files[fileChoosen]);
+        printf("num chars: %lld\n",file.numChars);
+        while(1){
+
+            send(socketDescriptor, files[fileChoosen], bufferSize,0);
+
+            send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
+            break;
+        }
         break;
     }
     freeFileArray(files);
