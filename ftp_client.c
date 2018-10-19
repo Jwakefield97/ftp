@@ -46,6 +46,11 @@ int getInputNumber(char *input){
 }
 
 int main(int argc, char **argv){
+    // int numLines = getNumberOfLinesinFile("ftp_client.c");
+    // char **fileData = getFileData("ftp_client.c");
+    // for(int i =0; i < numLines; i++){
+    //     printf("%d: %s\n",i,fileData[i]);
+    // }
     
     //if a valid ip is given set the ip else default to 127.0.0.1
     if(argv[1] != NULL && sizeof(argv[1]) >= 7 ){

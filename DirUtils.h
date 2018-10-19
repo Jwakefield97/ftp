@@ -40,6 +40,39 @@ void freeFileArray(char **array){
     }
 }
 
+//get the number of lines in a file
+int getNumberOfLinesinFile(char *filename) {
+    FILE * infile = fopen(filename,"r");
+    int counter = 0;
+    char line[501];
+    while (fgets(line,501,infile)) {
+        counter++;
+    }
+    return counter;
+}
+
+//get data lines from file and store in a char **
+char** getFileData(char *filename){
+    FILE * infile;
+    char line[501];
+    int llen;
+    int counter = 0;
+    char ** info = NULL;
+    infile = fopen(filename,"r");
+
+    while (fgets(line,501,infile)) {
+        // Allocate memory for pointer to line just added
+        info = realloc(info,(counter+1) * sizeof(char *));
+        // And allocate memory for that line itself!
+        llen = strlen(line);
+        info[counter] = calloc(sizeof(char),llen+1);
+        // Copy the line just read into that memory
+        strcpy(info[counter],line);
+        counter++;
+    }
+    return info;
+}
+
 //TODO: add error handling 
 //send a file by the number they chose over to the server
 int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
