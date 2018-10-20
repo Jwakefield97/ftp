@@ -83,18 +83,16 @@ int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
             char buffer[bufferSize];
             unsigned int lastIndex = 0;
 
-            while(fileSize > 0){
+            while(lastIndex < fileSize){
                 //populate buffer
                 for(int i =0; i < bufferSize; i++){
-                    //if(i+lastIndex < fileSize){
+                    if(i+lastIndex < fileSize){
                         buffer[i] = fileData[i+lastIndex];
-                    //}
+                    }
                 }
                 printf("%s",buffer);
                 //send buffer
                 send(socketDescriptor, buffer, bufferSize,0);
-                //subtract the num chars sent
-                fileSize -= bufferSize;
                 //put the next index at the num chars alread sent
                 lastIndex += bufferSize;
             }
