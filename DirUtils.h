@@ -3,14 +3,6 @@
 #include <stdio.h>
 #include <sys/socket.h>
 
-//struct used to store info about a given file
-struct file_info {
-    char **data;
-    char *fileName;
-    long long  int numLines; 
-    long long  int numChars; 
-};
-
 //get num files in a dir 
 int getNumFiles(){
     struct dirent *dp;
@@ -48,33 +40,30 @@ void freeFileArray(char **array){
     }
 }
 
-
-//get data lines from file and store in a char
-struct file_info getFileData(char *filename){
+//get number of chars from file
+unsigned int getFileSize(char *filename){
     FILE * infile;
     char line[501];
-    int llen;
     infile = fopen(filename,"r");
-
-    struct file_info file; 
-    file.fileName = filename; 
-    file.data = NULL;
-    file.numLines = 0; 
-    file.numChars = 0;
-
-    while (fgets(line,501,infile)) {
-        // Allocate memory for pointer to line just added
-        file.data = realloc(file.data,(file.numLines+1) * sizeof(char *));
-        // And allocate memory for that line itself!
-        llen = strlen(line);
-        file.numChars += strlen(line);
-        file.data[file.numLines] = calloc(sizeof(char),llen+1);
-        // Copy the line just read into that memory
-        strcpy(file.data[file.numLines],line);
-        file.numLines++;
+    unsigned numChars;
+    while (fgets(line,sizeof(line),infile)) {
+        numChars += strlen(line);
     }
     fclose(infile);
-    return file;
+    return numChars;
+}
+
+//get data lines from file and store in a char
+void getFileData(char *filename, char *filecontents){
+    FILE * infile;
+    infile = fopen(filename,"r");
+    char ch; 
+    int index = 0;
+    while((ch = getc(infile)) != EOF){
+        filecontents[index] = ch;
+        index++;
+    } 
+    fclose(infile);
 }
 
 //TODO: add error handling 
@@ -85,13 +74,16 @@ int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
     send(socketDescriptor, "u",bufferSize, 0); //send ls command
     while(1){
         //TODO: open file from file system and keep sending until all the bytes in the file are sent. make a function for it 
-        struct file_info file = getFileData(files[fileChoosen]);
-        printf("num chars: %lld\n",file.numChars);
+    
+        char file[getFileSize(files[fileChoosen])]; 
+        getFileData(files[fileChoosen],file);
+        printf("%s\n",file);
+
         while(1){
 
-            send(socketDescriptor, files[fileChoosen], bufferSize,0);
+             send(socketDescriptor, files[fileChoosen], bufferSize,0);
 
-            send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
+             send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
             break;
         }
         break;

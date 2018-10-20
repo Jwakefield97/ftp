@@ -71,7 +71,7 @@ int main(int argc, char **argv){
 
         //insert \0 to prevent premature exit of loop
         //look up how to prevent fputs from inserting a newline
-        fputs("\0",stdin);
+        //fputs("\0",stdin);
         
         fgets(input,sizeof(input),stdin);
 
@@ -88,7 +88,7 @@ int main(int argc, char **argv){
             freeFileArray(files);
 
         }else if(strcmp(input,"ls server\n")==0){
-            send(socketDescriptor, "ls", 2, 0); //send ls command
+            send(socketDescriptor, "ls", sizeof(buffer), 0); //send ls command
             int count = 0;
             //collect all of the messages from the server
             while(1){
@@ -100,8 +100,8 @@ int main(int argc, char **argv){
                 count++;
             }
         }else if(input[0] == 'u') {
+            
             sendFileOverSocket(socketDescriptor,getInputNumber(input),sizeof(buffer));
-            printf("uploading\n");
         }else if(input[0] == 'd'){
             getFileFromServer(socketDescriptor,getInputNumber(input),sizeof(buffer));
         }
