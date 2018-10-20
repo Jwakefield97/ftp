@@ -74,16 +74,32 @@ int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
     send(socketDescriptor, "u",bufferSize, 0); //send ls command
     while(1){
         //TODO: open file from file system and keep sending until all the bytes in the file are sent. make a function for it 
-    
-        char file[getFileSize(files[fileChoosen])]; 
-        getFileData(files[fileChoosen],file);
-        printf("%s\n",file);
+
+        unsigned int fileSize = getFileSize(files[fileChoosen]);
+        char fileData[fileSize]; 
+        getFileData(files[fileChoosen],fileData);
 
         while(1){
+            char buffer[bufferSize];
+            unsigned int lastIndex = 0;
 
-             send(socketDescriptor, files[fileChoosen], bufferSize,0);
+            while(fileSize > 0){
+                //populate buffer
+                for(int i =0; i < bufferSize; i++){
+                    //if(i+lastIndex < fileSize){
+                        buffer[i] = fileData[i+lastIndex];
+                    //}
+                }
+                printf("%s",buffer);
+                //send buffer
+                send(socketDescriptor, buffer, bufferSize,0);
+                //subtract the num chars sent
+                fileSize -= bufferSize;
+                //put the next index at the num chars alread sent
+                lastIndex += bufferSize;
+            }
 
-             send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
+            send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
             break;
         }
         break;
