@@ -88,6 +88,8 @@ int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
                 for(int i =0; i < bufferSize; i++){
                     if(i+lastIndex < fileSize){
                         buffer[i] = fileData[i+lastIndex];
+                    }else{
+                        buffer[i] = 0; //set the overflow indexs of the buffer to 0 
                     }
                 }
                 printf("%s",buffer);
