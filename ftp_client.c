@@ -69,11 +69,11 @@ int main(int argc, char **argv){
         printf("ftp> ");
         char input[50]; 
 
+        
+        fgets(input,sizeof(input),stdin);
         //insert \0 to prevent premature exit of loop
         //look up how to prevent fputs from inserting a newline
         fputs("\0",stdin);
-        
-        fgets(input,sizeof(input),stdin);
 
         if(strcmp(input,"exit")==0){
             break;
