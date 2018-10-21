@@ -74,7 +74,6 @@ void handleConnection(int sockAccept){
             getDirectoryFiles(files);
 
             write(sockAccept, files[1], sizeof(buffer)); //send filename
-
             sendFileOverSocket(sockAccept,files[1],sizeof(buffer));
             freeFileArray(files);
         } else {
