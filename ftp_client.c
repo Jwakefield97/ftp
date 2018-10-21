@@ -52,6 +52,7 @@ void interpretCommand(){
     fgets(input,sizeof(input),stdin);
 
     if(strcmp(input,"exit\n")==0){
+        send(socketDescriptor, "\0\0\0\0\0", sizeof(buffer),0);  // Echo msg
         exit(1);
     }
 

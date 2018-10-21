@@ -82,10 +82,14 @@ void handleConnection(int sockAccept){
                 sendFileOverSocket(sockAccept,files[fileChoice],sizeof(buffer));
                 freeFileArray(files);
             } else {
-                break; //invalid command break out of the loop
+                if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the user has exited
+                    break;
+                }
             }
 
         bzero(buffer,1000);
+        }else{
+            break; //the client has disconnected 
         }
     }
     close(sockAccept);
@@ -101,7 +105,8 @@ int main(int argc, char** argv) {
     int sockAccept;   
     addrLen = sizeof(cli_sin);
 
-    while (1){      
+    while (1){   
+        fork();   
         sockAccept = accept(sockListen,(struct sockaddr *) &cli_sin, (socklen_t *) &addrLen);
         if (sockAccept < 0){
             printf("Failed to accept connection\n");
