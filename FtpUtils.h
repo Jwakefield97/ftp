@@ -76,48 +76,48 @@ void saveFile(char *filename, char *buffer){
 
 //TODO: add error handling 
 //send a file by the number they chose over to the server
-int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
-    char *files[getNumFiles()]; 
-    getDirectoryFiles(files);
-    unsigned int fileSize = getFileSize(files[fileChoosen]);
+int sendFileOverSocket(int socketDescriptor, char *fileName, int bufferSize){
+    unsigned int fileSize = getFileSize(fileName);
     char fileData[fileSize]; 
-    getFileData(files[fileChoosen],fileData);
-
-    send(socketDescriptor, "u",bufferSize, 0); //send ls command
-    send(socketDescriptor, files[fileChoosen],bufferSize, 0); //send filename
-
+    getFileData(fileName,fileData);
     while(1){
-        while(1){
-            char buffer[bufferSize];
-            unsigned int lastIndex = 0;
+        char buffer[bufferSize];
+        unsigned int lastIndex = 0;
 
-            while(lastIndex < fileSize){
-                //populate buffer
-                for(int i =0; i < bufferSize; i++){
-                    if(i+lastIndex < fileSize){
-                        buffer[i] = fileData[i+lastIndex];
-                    }else{
-                        buffer[i] = 0; //set the overflow indexs of the buffer to 0 
-                    }
+        while(lastIndex < fileSize){
+            //populate buffer
+            for(int i =0; i < bufferSize; i++){
+                if(i+lastIndex < fileSize){
+                    buffer[i] = fileData[i+lastIndex];
+                }else{
+                    buffer[i] = 0; //set the overflow indexs of the buffer to 0 
                 }
-                printf("%s",buffer);
-                //send buffer
-                send(socketDescriptor, buffer, bufferSize,0);
-                //put the next index at the num chars alread sent
-                lastIndex += bufferSize;
             }
-
-            send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
-            break;
+            printf("%s",buffer);
+            //send buffer
+            send(socketDescriptor, buffer, bufferSize,0);
+            //put the next index at the num chars alread sent
+            lastIndex += bufferSize;
         }
+        send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
         break;
     }
-    freeFileArray(files);
+   
+    
     return 0;
 }
 
-//TODO: add error handling
-int getFileFromServer(int socketDescriptor, int fileChoosen, int bufferSize){
-    printf("getting file {%d} from server",fileChoosen);
-    return 0; 
+void getFileFromSocket(int socketDescriptor, char *fileName){
+    char buffer[1000];
+    while(1){
+        //TODO: keep reading until all the bytes in the file are sent (i.e. 5 \0 characters are sent).
+        read(socketDescriptor,buffer,sizeof(buffer));
+
+        if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
+            return;
+        }else{
+            printf("%s\n",buffer);
+            saveFile(fileName,buffer);
+        }
+    }
 }

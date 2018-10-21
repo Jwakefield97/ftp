@@ -100,10 +100,25 @@ int main(int argc, char **argv){
                 count++;
             }
         }else if(input[0] == 'u') {
-            
-            sendFileOverSocket(socketDescriptor,getInputNumber(input),sizeof(buffer));
+            char *files[getNumFiles()]; 
+            getDirectoryFiles(files);
+            int fileNumber = getInputNumber(input);
+            send(socketDescriptor, "u",sizeof(buffer), 0); //send u command
+            send(socketDescriptor, files[fileNumber], sizeof(buffer), 0); //send filename
+
+            sendFileOverSocket(socketDescriptor,files[fileNumber],sizeof(buffer)); //send file
+            freeFileArray(files);
         }else if(input[0] == 'd'){
-            getFileFromServer(socketDescriptor,getInputNumber(input),sizeof(buffer));
+            //int fileNumber = getInputNumber(input);//get the file number choosen. not currently being used (needs to be sent to server)
+            
+            send(socketDescriptor, "d",sizeof(buffer), 0); //send d command
+
+            read(socketDescriptor,buffer,sizeof(buffer)); //get file name
+            char fileName[sizeof(buffer)]; 
+            strcpy(fileName, buffer);
+            
+            printf("%s",fileName);
+            getFileFromSocket(socketDescriptor,fileName);
         }
 
     }

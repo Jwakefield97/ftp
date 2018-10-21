@@ -11,21 +11,6 @@
 const int Q_LEN = 5;  // number of waiting clients
 int port = 12000;
 
-void getFileFromSocket(int socketDescriptor, char *fileName){
-    char buffer[1000];
-    while(1){
-        //TODO: keep reading until all the bytes in the file are sent (i.e. 5 \0 characters are sent).
-        read(socketDescriptor,buffer,sizeof(buffer));
-
-        if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
-            return;
-        }else{
-            printf("%s\n",buffer);
-            saveFile(fileName,buffer);
-        }
-    }
-}
-
 int main(int argc, char** argv) {
     //if a valid port number is given set it else default to 12000
     if(argv[1] != NULL && sizeof(argv[1]) > 0){
@@ -92,10 +77,15 @@ int main(int argc, char** argv) {
                     strcpy(fileName, buffer);
                     getFileFromSocket(sockAccept,fileName);
                     
-                    //TODO: after the entire file is collected, store the collected info on the file system.
                 }
             } else if (buffer[0] == 'd'){
-                //TODO: add code to handle opening and sending a file by name.
+                char *files[getNumFiles()]; 
+                getDirectoryFiles(files);
+
+                write(sockAccept, files[1], sizeof(buffer)); //send filename
+
+                sendFileOverSocket(sockAccept,files[1],sizeof(buffer));
+                freeFileArray(files);
             } else {
                 break; //invalid command break out of the loop
             }
