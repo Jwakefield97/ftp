@@ -85,17 +85,23 @@ void interpretCommand(){
         sendFileOverSocket(socketDescriptor,files[fileNumber],sizeof(buffer)); //send file
         freeFileArray(files);
     }else if(input[0] == 'd'){
-        //int fileNumber = getInputNumber(input);//get the file number choosen. not currently being used (needs to be sent to server)
-        
+        int fileNumber = getInputNumber(input);//get the file number choosen. not currently being used (needs to be sent to server)
+       
         send(socketDescriptor, "d",sizeof(buffer), 0); //send d command
-
+        sprintf(buffer,"%d",fileNumber);
+        send(socketDescriptor, buffer,sizeof(buffer), 0); //send file choice
+        bzero(buffer,1000);
         read(socketDescriptor,buffer,sizeof(buffer)); //get file name
+        
+        //extract filename 
         char fileName[sizeof(buffer)]; 
         strcpy(fileName, buffer);
-        
-        printf("%s",fileName);
-        getFileFromSocket(socketDescriptor,fileName);
+        bzero(buffer,1000);
+
+        read(socketDescriptor,buffer,sizeof(buffer)); //get file size
+        getFileFromSocket(socketDescriptor,fileName,atoi(buffer));
     }
+    bzero(buffer,1000);
 }
 
 int main(int argc, char **argv){
@@ -108,7 +114,6 @@ int main(int argc, char **argv){
     if(argv[2] != NULL && sizeof(argv[2]) > 0){
         port = atoi(argv[2]);
     }
-
     socketSetupAndConnect();
     
     for(;;){

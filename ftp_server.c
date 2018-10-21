@@ -62,22 +62,30 @@ void handleConnection(int sockAccept){
                 }
                 freeFileArray(files);
             } else if (buffer[0] == 'u'){ //a file is being uploaded
-
                 read(sockAccept,buffer,sizeof(buffer)); //get file name
                 char fileName[sizeof(buffer)]; 
                 strcpy(fileName, buffer);
-                getFileFromSocket(sockAccept,fileName);
-                
-            }
-        } else if (buffer[0] == 'd'){
-            char *files[getNumFiles()]; 
-            getDirectoryFiles(files);
 
-            write(sockAccept, files[1], sizeof(buffer)); //send filename
-            sendFileOverSocket(sockAccept,files[1],sizeof(buffer));
-            freeFileArray(files);
-        } else {
-            break; //invalid command break out of the loop
+                read(sockAccept,buffer,sizeof(buffer)); //get file size
+                getFileFromSocket(sockAccept,fileName,atoi(buffer));
+                
+            }else if (buffer[0] == 'd'){
+                char *files[getNumFiles()]; 
+                getDirectoryFiles(files);
+                int fileChoice;
+
+                read(sockAccept,buffer,sizeof(buffer)); //get file size
+                fileChoice = atoi(buffer);
+                printf("%d\n",fileChoice);
+                write(sockAccept, files[fileChoice], sizeof(buffer)); //send filename
+
+                sendFileOverSocket(sockAccept,files[fileChoice],sizeof(buffer));
+                freeFileArray(files);
+            } else {
+                break; //invalid command break out of the loop
+            }
+
+        bzero(buffer,1000);
         }
     }
     close(sockAccept);

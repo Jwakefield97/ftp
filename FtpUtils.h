@@ -53,15 +53,13 @@ void freeFileArray(char **array){
 
 //get number of chars from file
 unsigned int getFileSize(char *filename){
+    int size;
     FILE * infile;
-    char line[501];
     infile = fopen(filename,"r");
-    unsigned numChars;
-    while (fgets(line,sizeof(line),infile)) {
-        numChars += strlen(line);
-    }
+    fseek(infile, 0L, SEEK_END);
+    size = ftell(infile);
     fclose(infile);
-    return numChars;
+    return size;
 }
 
 //get data lines from file and store in a char
@@ -77,10 +75,10 @@ void getFileData(char *filename, char *filecontents){
     fclose(infile);
 }
 
-void saveFile(char *filename, char *buffer){
+void saveFile(char *filename, char *buffer, int size){
     FILE *file; 
-    file = fopen(filename, "a");
-    fwrite(buffer, 1000, 1, file);
+    file = fopen(filename, "w");
+    fwrite(buffer, size, 1, file);
     fclose(file);
 }
 
@@ -90,43 +88,15 @@ int sendFileOverSocket(int socketDescriptor, char *fileName, int bufferSize){
     unsigned int fileSize = getFileSize(fileName);
     char fileData[fileSize]; 
     getFileData(fileName,fileData);
-    while(1){
-        char buffer[bufferSize];
-        unsigned int lastIndex = 0;
-
-        while(lastIndex < fileSize){
-            //populate buffer
-            for(int i =0; i < bufferSize; i++){
-                if(i+lastIndex < fileSize){
-                    buffer[i] = fileData[i+lastIndex];
-                }else{
-                    buffer[i] = 0; //set the overflow indexs of the buffer to 0 
-                }
-            }
-            printf("%s",buffer);
-            //send buffer
-            send(socketDescriptor, buffer, bufferSize,0);
-            //put the next index at the num chars alread sent
-            lastIndex += bufferSize;
-        }
-        send(socketDescriptor, "\0\0\0\0\0", bufferSize,0);
-        break;
-    }
-   
+    char buffer[fileSize];
+    sprintf(buffer,"%d",fileSize);
+    send(socketDescriptor, buffer, bufferSize,0);//send file size
+    send(socketDescriptor, fileData, fileSize,0);//send file
     return 0;
 }
 
-void getFileFromSocket(int socketDescriptor, char *fileName){
-    char buffer[1000];
-    while(1){
-        //TODO: keep reading until all the bytes in the file are sent (i.e. 5 \0 characters are sent).
-        read(socketDescriptor,buffer,sizeof(buffer));
-
-        if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
-            return;
-        }else{
-            printf("%s\n",buffer);
-            saveFile(fileName,buffer);
-        }
-    }
+void getFileFromSocket(int socketDescriptor, char *fileName, int fileSize){
+    char buffer[fileSize];
+    read(socketDescriptor,buffer,sizeof(buffer));
+    saveFile(fileName,buffer,sizeof(buffer));
 }
