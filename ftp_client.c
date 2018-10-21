@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "DirUtils.h"
+#include "FtpUtils.h"
 
 
 char *address = "127.0.0.1";

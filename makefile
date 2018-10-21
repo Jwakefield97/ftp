@@ -10,6 +10,8 @@ clean:
 	rm -f ftp_client ftp_server
 
 fresh: clean all
+	rm -f test/ftp_server
+	cp ftp_server test/ftp_server
  
 run: 
 	./ftp_server & ./ftp_client

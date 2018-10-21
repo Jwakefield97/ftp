@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
 
+
 //get num files in a dir 
 int getNumFiles(){
     struct dirent *dp;
@@ -66,19 +67,26 @@ void getFileData(char *filename, char *filecontents){
     fclose(infile);
 }
 
+void saveFile(char *filename, char *buffer){
+    FILE *file; 
+    file = fopen(filename, "a");
+    fwrite(buffer, 1000, 1, file);
+    fclose(file);
+}
+
 //TODO: add error handling 
 //send a file by the number they chose over to the server
 int sendFileOverSocket(int socketDescriptor, int fileChoosen, int bufferSize){
     char *files[getNumFiles()]; 
     getDirectoryFiles(files);
+    unsigned int fileSize = getFileSize(files[fileChoosen]);
+    char fileData[fileSize]; 
+    getFileData(files[fileChoosen],fileData);
+
     send(socketDescriptor, "u",bufferSize, 0); //send ls command
+    send(socketDescriptor, files[fileChoosen],bufferSize, 0); //send filename
+
     while(1){
-        //TODO: open file from file system and keep sending until all the bytes in the file are sent. make a function for it 
-
-        unsigned int fileSize = getFileSize(files[fileChoosen]);
-        char fileData[fileSize]; 
-        getFileData(files[fileChoosen],fileData);
-
         while(1){
             char buffer[bufferSize];
             unsigned int lastIndex = 0;

@@ -6,10 +6,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "DirUtils.h"
+#include "FtpUtils.h"
 
 const int Q_LEN = 5;  // number of waiting clients
 int port = 12000;
+
+void getFileFromSocket(int socketDescriptor, char *fileName){
+    char buffer[1000];
+    while(1){
+        //TODO: keep reading until all the bytes in the file are sent (i.e. 5 \0 characters are sent).
+        read(socketDescriptor,buffer,sizeof(buffer));
+
+        if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
+            return;
+        }else{
+            printf("%s\n",buffer);
+            saveFile(fileName,buffer);
+        }
+    }
+}
 
 int main(int argc, char** argv) {
     //if a valid port number is given set it else default to 12000
@@ -71,16 +86,12 @@ int main(int argc, char** argv) {
                     }
                     freeFileArray(files);
                 } else if (buffer[0] == 'u'){ //a file is being uploaded
-                    while(1){
-                        //TODO: keep reading until all the bytes in the file are sent (i.e. 5 \0 characters are sent).
-                        read(sockAccept,buffer,sizeof(buffer));
 
-                        if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
-                            break;
-                        }else{
-                            printf("%s\n",buffer);
-                        }
-                    }
+                    read(sockAccept,buffer,sizeof(buffer)); //get file name
+                    char fileName[sizeof(buffer)]; 
+                    strcpy(fileName, buffer);
+                    getFileFromSocket(sockAccept,fileName);
+                    
                     //TODO: after the entire file is collected, store the collected info on the file system.
                 }
             } else if (buffer[0] == 'd'){
