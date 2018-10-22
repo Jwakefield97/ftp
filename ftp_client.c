@@ -1,3 +1,13 @@
+//********************************************************************
+//
+// Missouri State University Progammer: Jacob Wakefield
+// Computer Networks
+// Programming Project #0: FTP server
+// October 23, 2018
+// Instructor: Dr. Ajay K. Katangur
+//
+//********************************************************************
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdio.h>
@@ -10,12 +20,35 @@
 #include "FtpUtils.h"
 
 
-char *address = "127.0.0.1";
-int port = 12000;
-int socketDescriptor;
-struct sockaddr_in addressStruct; 
+char *address = "127.0.0.1"; //default address of the ftp server
+int port = 12000; //default port of the ftp server
+int socketDescriptor; //socket descriptor of the open socket with the server
+struct sockaddr_in addressStruct; //address struct of the server 
 
-
+//********************************************************************
+//
+// Socket Setup and Connect 
+//
+// This function is used to setup the socket and make the initial connection 
+// to the server.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// None
+//
+// Local Variables
+// ---------------
+// None
+//
+//********************************************************************
 void socketSetupAndConnect() {
     socketDescriptor = socket(PF_INET, SOCK_STREAM, 0); /* create socket */
     memset(&addressStruct, 0, sizeof(addressStruct));    /* create & zero struct */
@@ -31,8 +64,31 @@ void socketSetupAndConnect() {
     printf("Connection to the server was successful\n"); 
 }
 
-//extract the file number from input buffer
-//TODO: fix truncation after 6 int places
+//********************************************************************
+//
+// Get Input Number 
+//
+// This function gets the number entered with the command. 
+// ex: "u 12" would get the number 12 from the input.
+//
+// Return Value
+// ------------
+// int                  The extracted number from the input buffer.
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// input        char*   The input buffer used to collect the command from the user.
+//
+// Local Variables
+// ---------------
+// number       char*   The char array used to store only the number chars.
+// numberIndex  int     The index of the next place in the char number array.
+//
+//********************************************************************
 int getInputNumber(char *input){
     char number[50];
     int numberIndex = 0;
@@ -45,7 +101,31 @@ int getInputNumber(char *input){
     return atoi(number);
 }
 
-//interpret command input by user 
+//********************************************************************
+//
+// Interpret Command
+//
+// This function interprets the command entered by the user and makes the 
+// corresponding network calls.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// None
+//
+// Local Variables
+// ---------------
+// buffer   char*       A char array used to collect information from the socket.
+// input    char*       A char array used to store commands entered by the user.
+//
+//********************************************************************
 void interpretCommand(){
     char buffer[1000];
     char input[50]; 
@@ -105,6 +185,29 @@ void interpretCommand(){
     bzero(buffer,1000);
 }
 
+//********************************************************************
+//
+// Main
+//
+// This function is the entry point to the application. 
+//
+// Return Value
+// ------------
+// int                  The exit value of the program. 
+//
+// Value Parameters
+// ----------------
+// argc     int         Number of arguments passed to the program
+//
+// Reference Parameters
+// --------------------
+// argv     char**      An array of char arrays containing the arguments passed to the program.
+//
+// Local Variables
+// ---------------
+// None
+//
+//********************************************************************
 int main(int argc, char **argv){
     
     //if a valid ip is given set the ip else default to 127.0.0.1

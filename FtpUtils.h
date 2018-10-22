@@ -1,3 +1,13 @@
+//********************************************************************
+//
+// Missouri State University Progammer: Jacob Wakefield
+// Computer Networks
+// Programming Project #0: FTP server
+// October 23, 2018
+// Instructor: Dr. Ajay K. Katangur
+//
+//********************************************************************
+
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdio.h>

@@ -1,3 +1,13 @@
+//********************************************************************
+//
+// Missouri State University Progammer: Jacob Wakefield
+// Computer Networks
+// Programming Project #0: FTP server
+// October 23, 2018
+// Instructor: Dr. Ajay K. Katangur
+//
+//********************************************************************
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -9,15 +19,39 @@
 #include "FtpUtils.h"
 
 const int Q_LEN = 5;  // number of waiting clients
-int port = 12000;
+int port = 12000; //default port
 
-struct sockaddr_in serv_sin;   
+struct sockaddr_in serv_sin;    
 struct sockaddr_in cli_sin;   
   
-int sockListen;   
+int sockListen;   // socket used for listening for connections
 
 unsigned int addrLen;   // or socklen_t addrLen
 
+//********************************************************************
+//
+// Set Up Server
+//
+// This function sets up the server socket, listens, and binds to 
+// the server port.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// None
+//
+// Local Variables
+// ---------------
+// None
+//
+//********************************************************************
 void setUpServer(){
     // Setup address structure   
     bzero((char *) &serv_sin, sizeof(serv_sin));
@@ -42,7 +76,31 @@ void setUpServer(){
         exit(1);
     }
 }
-
+//********************************************************************
+//
+// Handle Connection
+//
+// This function handles incoming requests from a given connection. 
+// It loops on the socket until the user quits or the connection is lost.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// sockAccept       int     The socket descriptor of the new connection.   
+//
+// Reference Parameters
+// --------------------
+// None
+//
+// Local Variables
+// ---------------
+// buffer           char*   The buffer used to receive information from the socket.
+// length           int     The length of the information sent to the socket.
+//
+//********************************************************************
 void handleConnection(int sockAccept){
     char buffer[1000];
     int length;
@@ -95,7 +153,29 @@ void handleConnection(int sockAccept){
     close(sockAccept);
 }
 
-
+//********************************************************************
+//
+// Main
+//
+// This function is the entry point to the application. 
+//
+// Return Value
+// ------------
+// int                  The exit value of the program. 
+//
+// Value Parameters
+// ----------------
+// argc     int         Number of arguments passed to the program
+//
+// Reference Parameters
+// --------------------
+// argv     char**      An array of char arrays containing the arguments passed to the program.
+//
+// Local Variables
+// ---------------
+// sockAccept           The new connection made to the server.
+//
+//********************************************************************
 int main(int argc, char** argv) {
     //if a valid port number is given set it else default to 12000
     if(argv[1] != NULL && sizeof(argv[1]) > 0){
@@ -106,7 +186,7 @@ int main(int argc, char** argv) {
     addrLen = sizeof(cli_sin);
 
     while (1){   
-        fork();   
+        fork();   //fork into a new process to handle the connection
         sockAccept = accept(sockListen,(struct sockaddr *) &cli_sin, (socklen_t *) &addrLen);
         if (sockAccept < 0){
             printf("Failed to accept connection\n");
