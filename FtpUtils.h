@@ -24,19 +24,19 @@
 //
 // Return Value
 // ------------
-// int          0 if the file is a directory and 1 if it is a normal file.
+// int                          0 if the file is a directory and 1 if it is a normal file.
 //
 // Value Parameters
 // ----------------
-// 
+// None
 //
 // Reference Parameters
 // --------------------
-// None
+// path         char*           The path to the file. In this case just the filename.
 //
 // Local Variables
 // ---------------
-// None
+// pathStat     struct stat     The struct holding the information about the dir.   
 //
 //********************************************************************
 int isFile(const char *path) {
@@ -45,7 +45,32 @@ int isFile(const char *path) {
     return S_ISREG(pathStat.st_mode);
 }
 
-//get num files in a dir 
+//********************************************************************
+//
+// Get Number of Files
+//
+// This function gets the number of files in a directory. 
+//
+// Return Value
+// ------------
+// int                          The number of files in the current directory.
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// None
+//
+// Local Variables
+// ---------------
+// dp           struct dirent*   A dirent directory pointer.
+// path         char*            The path to the directory.
+// dir          DIR              A directory pointer to the opened directory.
+// fileCount    int              The running count of the files in a directory.
+//
+//********************************************************************
 int getNumFiles(){
     struct dirent *dp;
     const char *path="."; // Directory target
@@ -61,7 +86,33 @@ int getNumFiles(){
 }
 
 
-//get file names from dir
+//********************************************************************
+//
+// Get Directory Files
+//
+// This function gets the filenames from the current directory and stores
+// them in an char**.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// fileList     char**          The char array used to store the file names in.
+//
+// Local Variables
+// ---------------
+// dp           struct dirent*   A dirent directory pointer.
+// path         char*            The path to the directory.
+// dir          DIR              A directory pointer to the opened directory.
+// count        int              The count of valid files. Used to index the fileList.
+//
+//********************************************************************
 void getDirectoryFiles(char **fileList){
     struct dirent *dp;
     const char *path="."; // Directory target
@@ -77,14 +128,60 @@ void getDirectoryFiles(char **fileList){
     }
 }
 
-//free the array used to hold file names
+//********************************************************************
+//
+// Free File Array
+//
+// This function is used to free up space that is dynamcially allocated 
+// by the getDirectoryFiles function.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// array    char**      The array of filenames to deallocate.
+//
+// Local Variables
+// ---------------
+// None
+//
+//********************************************************************
 void freeFileArray(char **array){
     for(int i = 0; i < sizeof(array)/sizeof(char*); i++){
         free(array[i]);
     }
 }
 
-//get number of chars from file
+//********************************************************************
+//
+// Get File Size
+//
+// This function gets the size of the file in bytes.
+//
+// Return Value
+// ------------
+// unsigned int        The size of the file in bytes.
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// filename     char*   The char array containing the filename of the file to get the size of.
+//
+// Local Variables
+// ---------------
+// size         int     The running count of the file size.
+// infile       FILE    The file pointer to the file to get the size of.
+//
+//********************************************************************
 unsigned int getFileSize(char *filename){
     int size;
     FILE * infile;
@@ -95,7 +192,32 @@ unsigned int getFileSize(char *filename){
     return size;
 }
 
-//get data lines from file and store in a char
+//********************************************************************
+//
+// Get File Data
+//
+// This function gets the data contents of a file and puts it into a char array.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// None
+//
+// Reference Parameters
+// --------------------
+// filename         char*   The filename of the file to get the contents of.
+// filecontents     char*   The char array to store the contents in.
+//
+// Local Variables
+// ---------------
+// infile           FILE    The file pointer to the file to get the data from.
+// ch               char    The current char that is being processed.
+// index            int     The index of the filecontents array to store the current char in.
+//
+//********************************************************************
 void getFileData(char *filename, char *filecontents){
     FILE * infile;
     infile = fopen(filename,"rb");
@@ -108,6 +230,29 @@ void getFileData(char *filename, char *filecontents){
     fclose(infile);
 }
 
+//********************************************************************
+//
+// Save File
+//
+// This function used to save a file from a buffer.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// size         int     The size of the buffer to be saved into the file.
+//
+// Reference Parameters
+// --------------------
+// filename     char*   The name of the file to save the buffer under. 
+// buffer       char*   The buffer to save into the file.   
+// Local Variables
+// ---------------
+// file         FILE    The file pointer to the file to modify.
+//
+//********************************************************************
 void saveFile(char *filename, char *buffer, int size){
     FILE *file; 
     file = fopen(filename, "w");
@@ -115,9 +260,34 @@ void saveFile(char *filename, char *buffer, int size){
     fclose(file);
 }
 
-//TODO: add error handling 
-//send a file by the number they chose over to the server
-int sendFileOverSocket(int socketDescriptor, char *fileName, int bufferSize){
+//********************************************************************
+//
+// Send File Over Socket
+//
+// This function is used to send the filename, file size, and file contents to
+// another socket.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// socketDescriptor     int             The socket descriptor of the socket to send the file to.
+// bufferSize           int             The size of the buffer on the server socket.
+//
+// Reference Parameters
+// --------------------
+// fileName             char*           The filename of the file to send.
+//
+// Local Variables
+// ---------------
+// fileSize             unsigned int    The size of the file to send.   
+// fileData             char*           The array of the data from the file.
+// buffer               char*           The buffer used to send the file size.
+//
+//********************************************************************
+void sendFileOverSocket(int socketDescriptor, char *fileName, int bufferSize){
     unsigned int fileSize = getFileSize(fileName);
     char fileData[fileSize]; 
     getFileData(fileName,fileData);
@@ -125,9 +295,32 @@ int sendFileOverSocket(int socketDescriptor, char *fileName, int bufferSize){
     sprintf(buffer,"%d",fileSize);
     send(socketDescriptor, buffer, bufferSize,0);//send file size
     send(socketDescriptor, fileData, fileSize,0);//send file
-    return 0;
 }
 
+//********************************************************************
+//
+// Get File From Socket
+//
+// This function is used to get the file from the socket and save the file.
+//
+// Return Value
+// ------------
+// Void
+//
+// Value Parameters
+// ----------------
+// socketDescriptor     int     The socket to receive the file from.
+// fileSize             int     The size of the file being received.
+//
+// Reference Parameters
+// --------------------
+// fileName             char*   The name of the file being saved.
+//
+// Local Variables
+// ---------------
+// buffer               char*   The buffer used to get the file from the socket.
+//
+//********************************************************************
 void getFileFromSocket(int socketDescriptor, char *fileName, int fileSize){
     char buffer[fileSize];
     read(socketDescriptor,buffer,sizeof(buffer));
