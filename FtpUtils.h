@@ -16,6 +16,29 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+//********************************************************************
+//
+// Is File 
+//
+// This function checks to see if a file is a normal file or a directory.
+//
+// Return Value
+// ------------
+// int          0 if the file is a directory and 1 if it is a normal file.
+//
+// Value Parameters
+// ----------------
+// 
+//
+// Reference Parameters
+// --------------------
+// None
+//
+// Local Variables
+// ---------------
+// None
+//
+//********************************************************************
 int isFile(const char *path) {
     struct stat pathStat;
     stat(path, &pathStat);
