@@ -92,7 +92,7 @@ void socketSetupAndConnect() {
 int getInputNumber(char *input){
     char number[50];
     int numberIndex = 0;
-    for(int i = 0; i < sizeof(input)/sizeof(input[0]); i++){
+    for(int i = 0; i < strlen(input); i++){
         if(input[i] != 'u' && input[i] != 'd' && input[i] != '\0'){
             number[numberIndex] = input[i];
             numberIndex++;
@@ -128,21 +128,23 @@ int getInputNumber(char *input){
 //********************************************************************
 void interpretCommand(){
     char buffer[1000];
+    bzero(buffer,1000);
     char input[50]; 
     fgets(input,sizeof(input),stdin);
 
-    if(strcmp(input,"exit\n")==0){
+    if(strcmp(input,"bye\n")==0){
         send(socketDescriptor, "\0\0\0\0\0", sizeof(buffer),0);  // Echo msg
         exit(1);
     }
 
     if(strcmp(input,"ls client\n")==0){
-        char *files[getNumFiles()]; 
+        int numFiles = getNumFiles();
+        char *files[numFiles]; 
         getDirectoryFiles(files);
         for(int i = 0; i < sizeof(files)/sizeof(char*); i++){
             printf("\t%d. %s\n",i,files[i]);
         }
-        freeFileArray(files);
+        freeFileArray(files,numFiles);
 
     }else if(strcmp(input,"ls server\n")==0){
         send(socketDescriptor, "ls", sizeof(buffer), 0); //send ls command
@@ -155,34 +157,40 @@ void interpretCommand(){
             }
             printf("\t%d. %s\n",count,buffer);
             count++;
+            bzero(buffer,1000);
         }
     }else if(input[0] == 'u') {
-        char *files[getNumFiles()]; 
-        getDirectoryFiles(files);
         int fileNumber = getInputNumber(input);
-        send(socketDescriptor, "u",sizeof(buffer), 0); //send u command
-        send(socketDescriptor, files[fileNumber], sizeof(buffer), 0); //send filename
+        int numFiles = getNumFiles();
+        if(fileNumber >= 0 && fileNumber < numFiles){
+            char *files[numFiles]; 
+            getDirectoryFiles(files);
+            send(socketDescriptor, "u",sizeof(buffer), 0); //send u command
+            send(socketDescriptor, files[fileNumber], sizeof(buffer), 0); //send filename
 
-        sendFileOverSocket(socketDescriptor,files[fileNumber],sizeof(buffer)); //send file
-        freeFileArray(files);
+            sendFileOverSocket(socketDescriptor,files[fileNumber],sizeof(buffer)); //send file
+            freeFileArray(files,numFiles);
+        }
     }else if(input[0] == 'd'){
         int fileNumber = getInputNumber(input);//get the file number choosen. not currently being used (needs to be sent to server)
-       
-        send(socketDescriptor, "d",sizeof(buffer), 0); //send d command
-        sprintf(buffer,"%d",fileNumber);
-        send(socketDescriptor, buffer,sizeof(buffer), 0); //send file choice
-        bzero(buffer,1000);
-        read(socketDescriptor,buffer,sizeof(buffer)); //get file name
-        
-        //extract filename 
-        char fileName[sizeof(buffer)]; 
-        strcpy(fileName, buffer);
-        bzero(buffer,1000);
+        if(fileNumber >= 0){
+            send(socketDescriptor, "d",sizeof(buffer), 0); //send d command
+            sprintf(buffer,"%d",fileNumber);
+            send(socketDescriptor, buffer,sizeof(buffer), 0); //send file choice
+            bzero(buffer,1000);
+            read(socketDescriptor,buffer,sizeof(buffer)); //get file name
+            if(buffer[0] != '\0' && buffer[1] != '\0' && buffer[2] != '\0' && buffer[3] != '\0' && buffer[4] != '\0'){  //if the file option was invalid
+                //extract filename 
+                char fileName[sizeof(buffer)]; 
+                strcpy(fileName, buffer);
+                bzero(buffer,1000);
 
-        read(socketDescriptor,buffer,sizeof(buffer)); //get file size
-        getFileFromSocket(socketDescriptor,fileName,atoi(buffer));
+                read(socketDescriptor,buffer,sizeof(buffer)); //get file size
+                getFileFromSocket(socketDescriptor,fileName,atoi(buffer));
+            }
+            
+        }
     }
-    bzero(buffer,1000);
 }
 
 //********************************************************************

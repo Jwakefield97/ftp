@@ -105,10 +105,12 @@ void handleConnection(int sockAccept){
     char buffer[1000];
     int length;
     while (sockAccept > 0) {
+        bzero(buffer,1000);
         length = read(sockAccept, buffer, sizeof(buffer));
         if(length > 0){
             if(buffer[0] == 'l' && buffer[1] == 's'){
-                char *files[getNumFiles()]; 
+                int numFiles = getNumFiles();
+                char *files[numFiles]; 
                 getDirectoryFiles(files);
                 for(int i = 0; i < sizeof(files)/sizeof(files[0]); i++){
                     write(sockAccept, files[i], sizeof(buffer));  // send the file name to the client
@@ -118,7 +120,7 @@ void handleConnection(int sockAccept){
                         write(sockAccept, "\0\0\0\0\0", sizeof(buffer));  // Echo msg  
                     }
                 }
-                freeFileArray(files);
+                freeFileArray(files,numFiles);
             } else if (buffer[0] == 'u'){ //a file is being uploaded
                 read(sockAccept,buffer,sizeof(buffer)); //get file name
                 char fileName[sizeof(buffer)]; 
@@ -128,24 +130,26 @@ void handleConnection(int sockAccept){
                 getFileFromSocket(sockAccept,fileName,atoi(buffer));
                 
             }else if (buffer[0] == 'd'){
-                char *files[getNumFiles()]; 
+                int numFiles = getNumFiles();
+                char *files[numFiles]; 
                 getDirectoryFiles(files);
                 int fileChoice;
 
                 read(sockAccept,buffer,sizeof(buffer)); //get file size
                 fileChoice = atoi(buffer);
-                printf("%d\n",fileChoice);
-                write(sockAccept, files[fileChoice], sizeof(buffer)); //send filename
+                if(fileChoice < numFiles){
+                    write(sockAccept, files[fileChoice], sizeof(buffer)); //send filename
+                    sendFileOverSocket(sockAccept,files[fileChoice],sizeof(buffer));
+                }else{
+                    write(sockAccept, "\0\0\0\0\0", sizeof(buffer)); //send error back indicating that the filechoice is not valid.
+                }
 
-                sendFileOverSocket(sockAccept,files[fileChoice],sizeof(buffer));
-                freeFileArray(files);
+                freeFileArray(files,numFiles);
             } else {
                 if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the user has exited
                     break;
                 }
             }
-
-        bzero(buffer,1000);
         }else{
             break; //the client has disconnected 
         }

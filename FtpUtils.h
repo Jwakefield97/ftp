@@ -121,7 +121,7 @@ void getDirectoryFiles(char **fileList){
 
     while((dp=readdir(dir)) != NULL){
         if(strcmp(dp->d_name,".") != 0 && strcmp(dp->d_name,"..") != 0 && isFile(dp->d_name)){
-            fileList[count] = (char*) malloc (strlen(dp->d_name)+1);
+            fileList[count] = (char*) calloc (strlen(dp->d_name)+1,sizeof(char));
             strncpy(fileList[count],dp->d_name,strlen(dp->d_name));
             count++;
         }
@@ -141,19 +141,19 @@ void getDirectoryFiles(char **fileList){
 //
 // Value Parameters
 // ----------------
-// None
+// numFiles     int         The number of file names in the array.
 //
 // Reference Parameters
 // --------------------
-// array    char**      The array of filenames to deallocate.
+// array        char**      The array of filenames to deallocate.
 //
 // Local Variables
 // ---------------
 // None
 //
 //********************************************************************
-void freeFileArray(char **array){
-    for(int i = 0; i < sizeof(array)/sizeof(char*); i++){
+void freeFileArray(char **array, int numFiles){
+    for(int i = 0; i < numFiles; i++){
         free(array[i]);
     }
 }
