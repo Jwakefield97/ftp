@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "FtpUtils.h"
+#include "ftp_utils.h"
 
 
 char *address = "127.0.0.1"; //default address of the ftp server

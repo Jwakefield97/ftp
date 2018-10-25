@@ -11,9 +11,10 @@
 ## Directory contents
 * ftp_client.c - the source code for the client application.
 * ftp_server.c - the server used by the client to connect to. 
+* ftp_utils.h  - common helper functions used between the server and client code.
 * makefile - file used to clean, build, and run the project. 
 * .gitignore - file used to prevent git from tracking certain files. 
-* README.md - file used to descibe the git repo and project. 
+* Readme.md - file used to descibe the git repo and project. 
 
 ## Building/Running 
 * to build run the command ``make`` or ``make all``.

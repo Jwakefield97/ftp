@@ -17,7 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
-#include "FtpUtils.h"
+#include "ftp_utils.h"
 
 const int Q_LEN = 5;  // number of waiting clients
 int port = 12000; //default port
