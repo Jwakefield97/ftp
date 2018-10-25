@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include "FtpUtils.h"
 
 const int Q_LEN = 5;  // number of waiting clients
@@ -194,9 +195,9 @@ int main(int argc, char** argv) {
         sockAccept = accept(sockListen,(struct sockaddr *) &cli_sin, (socklen_t *) &addrLen);
         if (sockAccept < 0){
             printf("Failed to accept connection\n");
-            exit(1);
+        }else{
+            handleConnection(sockAccept); //handle connection if it is successful
         }
-        handleConnection(sockAccept);
     }
     return 0;
 }
