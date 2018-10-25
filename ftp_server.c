@@ -110,17 +110,34 @@ void handleConnection(int sockAccept){
         length = read(sockAccept, buffer, sizeof(buffer));
         if(length > 0){
             if(buffer[0] == 'l' && buffer[1] == 's'){
+                bzero(buffer,1000);
                 int numFiles = getNumFiles();
                 char *files[numFiles]; 
                 getDirectoryFiles(files);
+                int charSizeToSend = 0;
                 for(int i = 0; i < sizeof(files)/sizeof(files[0]); i++){
-                    write(sockAccept, files[i], sizeof(buffer));  // send the file name to the client
-
-                    //if this is the last message being sent send only \0
-                    if(i == (sizeof(files)/sizeof(files[0])-1)){
-                        write(sockAccept, "\0\0\0\0\0", sizeof(buffer));  // Echo msg  
-                    }
+                    charSizeToSend += strlen(files[i]);
+                    charSizeToSend += 54; //number of possible file choices and the extra chars appended to the send buffer.
                 }
+                if(charSizeToSend < 1000){ //if char size is less than 1000 make the default size 1000
+                    charSizeToSend += (1000 - charSizeToSend);
+                }
+                char sendBuffer[charSizeToSend];
+                bzero(sendBuffer,charSizeToSend);
+                for(int i = 0; i < sizeof(files)/sizeof(files[0]); i++){
+                    char indexStr[50];
+                    sprintf(indexStr,"%d",i);
+                    strcat(sendBuffer,"\t");
+                    strcat(sendBuffer,indexStr);
+                    strcat(sendBuffer,". ");
+                    strcat(sendBuffer,files[i]);
+                    strcat(sendBuffer,"\n");
+                }
+                sprintf(buffer,"%d",charSizeToSend);
+                write(sockAccept, buffer, sizeof(buffer)); //send number of chars being sent
+                write(sockAccept, sendBuffer, sizeof(sendBuffer)); //send chars
+                  
+
                 freeFileArray(files,numFiles);
             } else if (buffer[0] == 'u'){ //a file is being uploaded
                 read(sockAccept,buffer,sizeof(buffer)); //get file name

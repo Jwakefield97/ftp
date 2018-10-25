@@ -148,17 +148,15 @@ void interpretCommand(){
 
     }else if(strcmp(input,"ls server\n")==0){
         send(socketDescriptor, "ls", sizeof(buffer), 0); //send ls command
-        int count = 0;
+        bzero(buffer,1000);
+
         //collect all of the messages from the server
-        while(1){
-            read(socketDescriptor,buffer,sizeof(buffer));
-            if(buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0' && buffer[4] == '\0'){  //if the first 5 chars is \0 then the server has stopped sending info
-                break;
-            }
-            printf("\t%d. %s\n",count,buffer);
-            count++;
-            bzero(buffer,1000);
-        }
+        read(socketDescriptor,buffer,sizeof(buffer)); //get number of chars being sent
+        
+        char recvBuffer[atoi(buffer)];
+        read(socketDescriptor,recvBuffer,sizeof(buffer)); //get number of chars being sent
+        printf("%s\n",recvBuffer);
+            
     }else if(input[0] == 'u') {
         int fileNumber = getInputNumber(input);
         int numFiles = getNumFiles();
