@@ -20,8 +20,8 @@
 #include "ftp_utils.h"
 
 
-char *address = "127.0.0.1"; //default address of the ftp server
-int port = 12000; //default port of the ftp server
+char *address; //address of the ftp server
+int port; //port of the ftp server
 int socketDescriptor; //socket descriptor of the open socket with the server
 struct sockaddr_in addressStruct; //address struct of the server 
 
@@ -217,12 +217,12 @@ void interpretCommand(){
 int main(int argc, char **argv){
     
     //if a valid ip is given set the ip else default to 127.0.0.1
-    if(argv[1] != NULL && sizeof(argv[1]) >= 7 ){
+    if(argv[1] != NULL && argv[2] != NULL){
         address = argv[1];
-    }
-    //if a valid port number is given set it else default to 12000
-    if(argv[2] != NULL && sizeof(argv[2]) > 0){
         port = atoi(argv[2]);
+    }else{
+        printf("The incorrect number of arguments were passed in. Format: ./ftp_client <ip> <port>\n");
+        exit(1);
     }
     socketSetupAndConnect();
     

@@ -20,7 +20,7 @@
 #include "ftp_utils.h"
 
 const int Q_LEN = 5;  // number of waiting clients
-int port = 12000; //default port
+int port; //default port
 
 struct sockaddr_in serv_sin;    
 struct sockaddr_in cli_sin;   
@@ -200,9 +200,12 @@ void handleConnection(int sockAccept){
 //********************************************************************
 int main(int argc, char** argv) {
     //if a valid port number is given set it else default to 12000
-    if(argv[1] != NULL && sizeof(argv[1]) > 0){
-        port = atoi(argv[2]);
-    }   
+    if(argv[1] != NULL){
+        port = atoi(argv[1]);
+    }else{
+        printf("The incorrect number of arguments were passed in. Format: ./ftp_server <port>\n");
+        exit(1);
+    }
     setUpServer();//initialize server
     int sockAccept;   
     addrLen = sizeof(cli_sin);
