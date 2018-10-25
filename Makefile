@@ -8,10 +8,9 @@ ftp_server: ftp_server.c
 
 clean: 
 	rm -f ftp_client ftp_server
-	rm -rf jwakefield
 	rm -rf test
 	rm -rf .vscode
-	rm -f jwakefield.tgz
+	rm -f jsw5227.tgz
 
 fresh: clean all
 	mkdir test
@@ -19,13 +18,14 @@ fresh: clean all
 	cp ftp_server test/ftp_server
 
 pack: clean
-	mkdir jwakefield
-	cp ftp_client.c jwakefield/ftp_client.c
-	cp ftp_server.c jwakefield/ftp_server.c
-	cp FtpUtils.h jwakefield/FtpUtils.h
-	cp Makefile jwakefield/Makefile
-	cp Readme.md jwakefield/Readme.md
-	tar cvfz jwakefield.tgz jwakefield
+	mkdir jsw5227
+	cp ftp_client.c jsw5227/ftp_client.c
+	cp ftp_server.c jsw5227/ftp_server.c
+	cp ftp_utils.h jsw5227/ftp_utils.h
+	cp Makefile jsw5227/Makefile
+	cp Readme.md jsw5227/Readme.md
+	tar cvfz jsw5227.tgz jsw5227
+	rm -rf jsw5227
 	
 
 
